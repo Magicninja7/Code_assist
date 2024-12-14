@@ -5,7 +5,7 @@ import anthropic
 import os
 import keyboard
 from datetime import datetime, timedelta
-import inputs
+from inputimeout import inputimeout, TimeoutOccurred
 
 
 project_ideas = [
@@ -49,7 +49,6 @@ project_ideas = [
     "Create a sentiment analysis tool that classifies the tone of user input.",
     "Develop a basic autonomous agent to navigate a maze using reinforcement learning.",
     
-    # Miscellaneous Fun Ideas
     "Build a virtual pet simulator where the user can care for a pet over time.",
     "Create a text-based stock market simulator with random events and trends.",
     "Develop a tool to convert handwritten chess notation into digital chess.com format.",
@@ -64,16 +63,14 @@ project_ideas = [
     "Build a journaling app with search, tagging, and sentiment analysis features."
 ]
 
-def input_with_timeout(prompt, timeout=10):
-    print(prompt, end=": ", flush=True)
-    try:
-        response = inputs.get_key(timeout=timeout)
-        return response.ev
-    except inputs.TimeoutException:
-        return None
+
 
 def move_mice(index):
-    pyautogui.hotkey('ctrl', '`')
+    if index == 0:
+        pyautogui.write('cd tests', interval=0.1)
+        pyautogui.press('enter')
+    else:
+        pyautogui.hotkey('ctrl', '`')
     pyautogui.write(f'code {index}.py', interval=0.1)
     keyboard.send('enter')
     pyautogui.hotkey('ctrl', 's')
@@ -99,28 +96,36 @@ def code(Query):
     return message.content[0].text
 
 
-
 time.sleep(5)
-pyautogui.write('###', interval=0.25)
 
 
 def main():
-    file_index = 1
-
+    file_index = 0
+    pyautogui.hotkey('ctrl', 'shift', '`')
+    move_mice(file_index)
     while True:
         pyautogui.press('enter')
-        prompt = input_with_timeout("Enter something", 10)
-        if prompt is None:
-            idea = random.randit(0, len(project_ideas) - 1)
+        try:
+            prompt = inputimeout(prompt='Please enter something: ', timeout=15)
+        except TimeoutOccurred:
+            idea = random.randint(0, len(project_ideas) - 1)
             prompt = project_ideas[idea]
-
         message = code(prompt)
+
         for x in message:
             if x == '\n':
-                time.sleep(1)
-                keyboard.send('enter')
-                for _ in range(3):
-                    pyautogui.hotkey('home')
+                for _ in range(2):
+                    time.sleep(0.5)  # Reduced sleep time for better responsiveness
+                    keyboard.send('enter')
+                    time.sleep(0.2)
+                    pyautogui.hotkey('end')
+                    time.sleep(0.2)
+                    pyautogui.keyDown('shift')
+                    pyautogui.press('home')
+                    time.sleep(0.2)
+                    pyautogui.keyUp('shift')
+                    pyautogui.press('delete')
+                    time.sleep(0.2)
             else:
                 pyautogui.write(x, interval=0.1)
         file_index += 1

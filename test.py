@@ -1,17 +1,8 @@
-filename = 'mouse_position.py'  # Replace with the path to your file
-def read_file(filename):
-    snippet = [] 
-    extracting = False 
+from inputimeout import inputimeout, TimeoutOccurred
 
-    with open(filename, 'r') as file:
-        for line in file:
-            if '#####' in line:
-                extracting = not extracting 
-                if not extracting:
-                    break
-                continue
-            if extracting:
-                snippet.append(line)
-    return snippet
+try:
+    user_input = inputimeout(prompt='Please enter something: ', timeout=15)
+except TimeoutOccurred:
+    user_input = None
 
-print(read_file(filename))
+print(f'User input: {user_input}')

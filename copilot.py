@@ -33,7 +33,7 @@ def code(Query, file):
 
     message = client.messages.create(
         model="claude-3-5-sonnet-20241022",
-        max_tokens=1000,
+        max_tokens=1000000,
         temperature=0,
         system="You are a model that writes python code. You will be given a prompt and a code snippet (it will be a python list, where list[0] is the first line). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using \ for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. You can assume that any libraries are already imported. Good luck!",
         messages=[
