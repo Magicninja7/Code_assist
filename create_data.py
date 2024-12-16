@@ -115,7 +115,7 @@ def main():
         for x in message:
             if x == '\n':
                 for _ in range(2):
-                    time.sleep(0.5)  # Reduced sleep time for better responsiveness
+                    time.sleep(0.5)
                     keyboard.send('enter')
                     time.sleep(0.2)
                     pyautogui.hotkey('end')
