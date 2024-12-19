@@ -39,27 +39,33 @@ def app():
 
     prompt_entry = tk.Entry(root, width=50, font=("Arial", 12))
     prompt_entry.pack(pady=20)
-
-    prompt1_entry = tk.Entry(root, width=50, font=("Arial", 12))
-    prompt1_entry.pack(pady=20)
-
-
     def on_send():
         prompt = prompt_entry.get()
         prompt_for.append(prompt)
-
-    def on_file():
-        file = prompt1_entry.get()
-        snippet.append(read_file(file))
-
     send_button = tk.Button(root, text="Send", command=on_send, bg="gray", fg="white", font=("Arial", 12))
     send_button.pack()
 
+
+
+    prompt1_entry = tk.Entry(root, width=50, font=("Arial", 12))
+    prompt1_entry.pack(pady=20)
+    def on_file():
+        file = prompt1_entry.get()
+        files.append(file)
     send1_button = tk.Button(root, text="Send", command=on_file, bg="gray", fg="white", font=("Arial", 12))
     send1_button.pack()
 
+    def check_condition():
+        if prompt_for and files:
+            root.destroy()
+        else:
+            root.after(100, check_condition)
+
+    check_condition()
+
     root.mainloop()
 
+###
 
 
 
@@ -90,13 +96,13 @@ def code(Query, file, snippets):
 
     message = client.messages.create(
         model="claude-3-5-sonnet-20241022",
-        max_tokens=1000000,
+        max_tokens=8192,
         temperature=0,
-        system="You are a model that writes python code. You will be given a prompt and a code snippet (it will be a python list, where list[0] is the first line). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using \ for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'. Also, acknowledge that the code snippet may not be 100 percent accurate, as ti was caputred with PIL. Good luck!",
+        system="You are a model that writes python code. You will be given a prompt and a code snippet (prompt will start with Prompt:, and code snippet with Snippet:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'. Also, acknowledge that the code snippet may not be 100 percent accurate, as ti was caputred with PIL. Good luck!",
         messages=[
             {
                 "role": "user", 
-                "content": [{"type": "text", "text": zip(Query, snippets)}]
+                "content": [{"type": "text", "text": f'Prompt: {Query} Snippet: {snippets}'}]
             }
         ]
     )
@@ -106,18 +112,19 @@ def code(Query, file, snippets):
     elif final == 'nothing':
         message1 = client.messages.create(
             model="claude-3-5-sonnet-20241022",
-            max_tokens=1000000,
+            max_tokens=8192,
             temperature=0,
-            system="You are a model that writes python code. You will be given a prompt and a code snippet (it will be a python list, where list[0] is the first line). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using \ for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'.Good luck!",
+            system="You are a model that writes python code. You will be given a prompt and a code snippet (the prompt will start with Prompt:, and the file, with File:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'.Good luck!",
             messages=[
                 {
                     "role": "user", 
-                    "content": [{"type": "text", "text": zip(Query, file)}]
+                    "content": [{"type": "text", "text": f'Prompt: {Query} File: {file}'}]
                 }
             ]
         )
     final = message1.content[0].text
     return final
+
 
 
 time.sleep(5)
@@ -130,15 +137,18 @@ def main():
     app()
     pyautogui.press('enter')
 
-    file = files[-1]
-    if not file:
+    file = files[-1] if files else None
+    if file is None:
         snippets = snippet[-1]
     else:
-        snippets = ''
-    prompt = input("Enter your prompt: ")
+        snippets = read_file(file)
+    prompt = prompt_for[-1]
+
     message = code(prompt, file, snippets)
+    print()
+    print(message)
 
-
+    '''
     for x in message:
         if x == '\n':
             time.sleep(1)
@@ -148,7 +158,7 @@ def main():
                 pyautogui.hotkey('home')
         else:
             pyautogui.write(x)
-
+    '''
 
 main()
 
