@@ -11,6 +11,7 @@ from PIL import ImageGrab, Image
 import tkinter as tk
 import cv2
 import numpy as np
+import re
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
@@ -20,8 +21,10 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 snippet = []
 prompt_for = []
 files = []
+ocr = ''
 
 def screen():
+    global ocr
     bbox = (467, 142, 1852, 858)
     screenshot = ImageGrab.grab(bbox)
     screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
@@ -29,9 +32,11 @@ def screen():
     _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
     processed_image = Image.fromarray(thresh)
     extracted_text = pytesseract.image_to_string(processed_image)
-    return extracted_text
+    ocr = extracted_text
+    return ocr
 
 def app():
+
     root = tk.Tk()
     root.title("Code Assist")
     root.geometry("1500x1000")
@@ -65,9 +70,24 @@ def app():
 
     root.mainloop()
 
-###
+
+def merge(message, file):
+    n_message = f"\n{message}\n"
+    n_file = "".join(file)
+    pattern = re.compile(r'(#####)(.*?)(#####)', re.DOTALL)
+    return pattern.sub(r'\1' + n_message + r' \3', n_file)
+    
 
 
+
+    
+
+def whole_code(filename):
+    whole = []
+    with open(filename, 'r') as file:
+        for line in file:
+            whole.append(line)
+    return whole
 
 
 def read_file(filename):
@@ -94,34 +114,18 @@ def code(Query, file, snippets):
         raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
     client = anthropic.Anthropic(api_key=api_key)
 
-    message = client.messages.create(
+    message1 = client.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=8192,
         temperature=0,
-        system="You are a model that writes python code. You will be given a prompt and a code snippet (prompt will start with Prompt:, and code snippet with Snippet:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'. Also, acknowledge that the code snippet may not be 100 percent accurate, as ti was caputred with PIL. Good luck!",
+        system="You are a model that writes python code. You will be given a prompt and a code snippet (it starts and ends, with #####) and the whole code (the prompt will start with Prompt:, and the file, with File:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. Return only the changed code. Change as little of the code as possible, and fit within the ##### (represents the start and end, of the code snippet the user marker), as the code will later be merged with the whole file. Return only code, if youre not sure, do what you think is right (but whcih involves coding). Good luck!",
         messages=[
             {
                 "role": "user", 
-                "content": [{"type": "text", "text": f'Prompt: {Query} Snippet: {snippets}'}]
+                "content": [{"type": "text", "text": f'Prompt: {Query} File: {file}, Snippet: {snippets}'}]
             }
         ]
     )
-    final = message.content[0].text
-    if final != 'nothing':
-        return final
-    elif final == 'nothing':
-        message1 = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=8192,
-            temperature=0,
-            system="You are a model that writes python code. You will be given a prompt and a code snippet (the prompt will start with Prompt:, and the file, with File:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. If the given code snippet isnt enough to fix it/create more, return; 'nothing'.Good luck!",
-            messages=[
-                {
-                    "role": "user", 
-                    "content": [{"type": "text", "text": f'Prompt: {Query} File: {file}'}]
-                }
-            ]
-        )
     final = message1.content[0].text
     return final
 
@@ -138,27 +142,16 @@ def main():
     pyautogui.press('enter')
 
     file = files[-1] if files else None
-    if file is None:
-        snippets = snippet[-1]
-    else:
-        snippets = read_file(file)
+    snippets = read_file(file)
     prompt = prompt_for[-1]
+    whole = whole_code(file)
 
-    message = code(prompt, file, snippets)
-    print()
-    print(message)
+    message = code(prompt, whole, snippets)
 
-    '''
-    for x in message:
-        if x == '\n':
-            time.sleep(1)
-            keyboard.send('enter')
-            pyautogui.hotkey('enter')
-            for _ in range(3):
-                pyautogui.hotkey('home')
-        else:
-            pyautogui.write(x)
-    '''
+    final = merge(message, whole)
+    with open(file, 'w', encoding="utf-8") as file:
+        file.write(final)
+
 
 main()
 
