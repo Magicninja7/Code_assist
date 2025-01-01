@@ -117,7 +117,7 @@ def code(Query, file, snippets):
         model="claude-3-5-sonnet-20241022",
         max_tokens=8192,
         temperature=0,
-        system="You are a model that writes python code. You will be given a prompt and a code snippet (it starts and ends, with #####) and the whole code (the prompt will start with Prompt:, and the file, with File:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. Return only the changed code. Change as little of the code as possible, and fit within the ##### (represents the start and end, of the code snippet the user marker), as the code will later be merged with the whole file. Return only code, if youre not sure, do what you think is right (but whcih involves coding). Good luck!",
+        system="You are a model that writes python code. You will be given a prompt and a code snippet (the relevant code starts and ends, with #####) and the whole code (the prompt will start with Prompt:, and the file, with File:). Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. Return only the changed code. Change as little of the code as possible, and fit within the ##### (represents the start and end, of the code snippet the user marker), as the code will later be merged with the whole file. Return only code, if youre not sure, do what you think is right (but whcih involves coding). Good luck!",
         messages=[
             {
                 "role": "user", 
@@ -141,9 +141,14 @@ def main():
     pyautogui.press('enter')
 
     file = files[-1] if files else None
-    snippets = read_file(file)
+    whole = None
+    if file == 'OCR':
+        snippets = screen()
+    else:
+        snippets = read_file(file)
+        whole = whole_code(file)
+
     prompt = prompt_for[-1]
-    whole = whole_code(file)
 
     message = code(prompt, whole, snippets)
 
