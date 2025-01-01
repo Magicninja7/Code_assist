@@ -12,6 +12,7 @@ import tkinter as tk
 import cv2
 import numpy as np
 import re
+import argparse
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
@@ -74,7 +75,8 @@ def merge(message, file):
     n_message = f"\n{message}\n"
     n_file = "".join(file)
     pattern = re.compile(r'(#####)(.*?)(#####)', re.DOTALL)
-    return pattern.sub(r'\1' + n_message + r' \3', n_file)
+    merged_content = pattern.sub(r'\1' + n_message + r'\3', n_file)
+    return re.sub(r'#####', '', merged_content)
     
 
 
@@ -117,7 +119,7 @@ def code(Query, file, snippets):
         model="claude-3-5-sonnet-20241022",
         max_tokens=8192,
         temperature=0,
-        system="You are a model that writes python code. You will be given a prompt and a code snippet (the relevant code starts and ends, with #####) and the whole code, but it may happen that it will not exist (the prompt will start with Prompt:, and the file, with File:). The snippet was fetched using OCR, so fix the formatting and indentation. Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Import all libraries needed. Return only the changed code. Change as little of the code as possible, and fit within the ##### (represents the start and end, of the code snippet the user marker), as the code will later be merged with the whole file. Return only code, if youre not sure, do what you think is right (but whcih involves coding). Good luck!",
+        system="You are a model that writes python code. You will be given a prompt and a code snippet (the relevant code starts and ends, with #####) and the whole code, but it may happen that it will not exist (the prompt will start with Prompt:, and the file, with File:). The snippet was fetched using OCR, so fix the formatting and indentation. Do what the user says. Wether it is to debug, or to add a feature, you must do it. You will be using pyautogui to write the code, therefor avoid using backslash for anything other than to start a new line. Your code must be well-documented, and free from any type of bugs. Dont import necessary libraries, unless theyre not in the whole file. Return only the changed code. Change as little of the code as possible, and fit within the ##### (represents the start and end, of the code snippet the user marker), as the code will later be merged with the whole file. Return only code, if youre not sure, do what you think is right (but whcih involves coding). Remember to document your fixes. Good luck!",
         messages=[
             {
                 "role": "user", 
@@ -129,14 +131,39 @@ def code(Query, file, snippets):
     return final
 
 
+def process_issue(issue, filename, snippets):
+    if filename:
+        whole = whole_code(filename)
+        message = code(issue, whole, snippets)
+        final = merge(message, whole)
+        with open(filename, 'w', encoding="utf-8") as file:
+            file.write(final)
+
+    else:
+        message = code(issue, None, snippets)
+        print(message)
+
+
+
+
+
+    
+    
+
+
+
+
+
+
 
 time.sleep(5)
-pyautogui.write('###', interval=0.25)
 
 
 
 
-def main():
+
+
+def run_gui():
     app()
     pyautogui.press('enter')
 
@@ -157,5 +184,56 @@ def main():
         file.write(final)
 
 
-main()
+
+
+def run_cli(args):
+    issue = args.issue
+    if args.file != "":
+        file = args.file
+    else:
+        file = None
+    if args.ocr == 'y':
+        snippets = screen()
+    else:
+        snippets = read_file(file)
+    process_issue(issue, file, snippets)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Code Assist Tool")
+    parser.add_argument("--issue", type=str, help="Describe the issue you're facing")
+    parser.add_argument("--file", type=str, help="Path to the file to analyze")
+    parser.add_argument("--ocr", type=str, help="y/n")
+    
+    args = parser.parse_args()
+
+    if args.issue or args.file or args.ocr:
+        run_cli(args)
+    else:
+        run_gui()
+
+if __name__ == "__main__":
+    main()
+
 
