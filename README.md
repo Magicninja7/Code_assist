@@ -20,7 +20,7 @@ python copilot.py
 
 #in the first input field enter your issue
 
-#in the second, enter the filename
+#in the second, enter the filename, or OCR, to capture the snippet.
 ```
 
 ## License
