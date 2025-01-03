@@ -26,6 +26,7 @@ files = []
 ocr = ''
 if_use_git_gui = []
 
+#screen capture using OCR
 def screen():
     global ocr
     bbox = (467, 142, 1852, 858)
@@ -37,7 +38,9 @@ def screen():
     extracted_text = pytesseract.image_to_string(processed_image)
     ocr = extracted_text
     return ocr
+#end OCR
 
+#tkinter app
 def app():
 
     root = tk.Tk()
@@ -81,8 +84,9 @@ def app():
     check_condition()
 
     root.mainloop()
+#end tkinter
 
-
+#merge whole code with snippet (using #####)
 def merge(message, file):
     n_message = f"\n{message}\n"
     n_file = "".join(file)
@@ -91,14 +95,16 @@ def merge(message, file):
     return re.sub(r'#####', '', merged_content)
     
 
+#get the whole code from file
 def whole_code(filename):
     whole = []
     with open(filename, 'r') as file:
         for line in file:
             whole.append(line)
     return whole
+#end getwholecode
 
-
+#read snippets of code
 def read_file(filename):
     snippet = [] 
     extracting = False 
@@ -113,10 +119,11 @@ def read_file(filename):
             if extracting:
                 snippet.append(line)
     return snippet
+#end read
 
 
-
-
+#prompt to get file fixed
+... #add diffing
 def code(Query, file, snippets):
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if api_key is None:
@@ -138,7 +145,7 @@ def code(Query, file, snippets):
     final = message1.content[0].text
     return final
 
-
+#works for CLI
 def process_issue(issue, filename, snippets):
     if filename:
         whole = whole_code(filename)
@@ -150,7 +157,7 @@ def process_issue(issue, filename, snippets):
     else:
         message = code(issue, None, snippets)
         print(message)
-
+#end cli
 
 #git functions
 def get_folder_path():
@@ -197,15 +204,6 @@ def git_use_cli(repo_path, remote_url):
     commit_changes(repo, "Initial commit")
     push_changes(origin, "main")
 #endgit functions
-
-
-
-
-
-
-
-
-
 
 
 
