@@ -123,7 +123,6 @@ def read_file(filename):
 
 
 #prompt to get file fixed
-... #add diffing
 def code(Query, file, snippets):
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if api_key is None:

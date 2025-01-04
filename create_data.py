@@ -100,17 +100,24 @@ time.sleep(5)
 
 
 def main():
-    file_index = 0
-    pyautogui.hotkey('ctrl', 'shift', '`')
-    move_mice(file_index)
+    idea = random.randint(0, len(project_ideas) - 1)
+    prompt = project_ideas[idea]
+    message = code(prompt)
+
+    xxol = 0
     while True:
-        pyautogui.press('enter')
-        try:
-            prompt = inputimeout(prompt='Please enter something: ', timeout=15)
-        except TimeoutOccurred:
-            idea = random.randint(0, len(project_ideas) - 1)
-            prompt = project_ideas[idea]
-        message = code(prompt)
+        if xxol == 2000:
+            time.sleep(140, 500)
+        elif xxol == 500:
+            time.sleep(60, 190)
+        elif xxol == 100:
+            time.sleep(20, 70)
+        elif xxol == 50:
+            time.sleep(5, 20)
+        elif xxol == 20:
+            time.sleep(2, 5)
+        elif xxol == 10:
+            time.sleep(1, 3)
 
         for x in message:
             if x == '\n':
@@ -128,8 +135,7 @@ def main():
                     time.sleep(0.2)
             else:
                 pyautogui.write(x, interval=0.1)
-        file_index += 1
-        move_mice(file_index)
+                xxol += 1
 
 
 
