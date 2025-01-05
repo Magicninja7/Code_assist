@@ -12,21 +12,14 @@ directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 #github link: https://github.com/Magicninja7/Code_assist.git
 #path: C:\Users\jtpta\OneDrive\Pulpit\Code_assist
 
-
+#####
 def bfs():
-    '''
-    Breadth-First Search implementation to find path in maze
-    Fixed issues:
-    1. Removed invalid 'string entry' declaration
-    2. Fixed visited array initialization (should be False initially)
-    3. Corrected maze index checking (was using dx,dy instead of nx,ny)
-    4. Fixed parent dictionary updates
-    '''
+    string entry
     entry = input("Enter the entry point (x, y): ")
 
     x, y = map(int, entry.split(","))
     n = len(maze)
-    visited = [[False] * n for _ in range(n)]
+    visited = [[True] * n for _ in range(n)]
     parent = {}
 
     queue = [(x, y)]
@@ -38,8 +31,8 @@ def bfs():
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
             if 0 <= nx < n and 0 <= ny < n and not visited[nx][ny]:
-                if maze[nx][ny] == 2:  
-                    parent[(nx, ny)] = (x, y)
+                if maze[dx][dy] == 2:  
+                    parent[(dx, dy)] = (nx, ny)
                     path = []
                     curr = (nx, ny)
                     while curr is not None:
@@ -52,9 +45,9 @@ def bfs():
                 if maze[nx][ny] == 0:  
                     queue.append((nx, ny))
                     visited[nx][ny] = True
-                    parent[(nx, ny)] = (x, y)
+                    parent[(x, y)] = (nx, ny)
     return "No path found"
-
+#####
 
 
 
