@@ -9,20 +9,18 @@ maze = [
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
 
-
+#github link: https://github.com/Magicninja7/Code_assist.git
+#path: C:\Users\jtpta\OneDrive\Pulpit\Code_assist
 
 
 def bfs():
     '''
-    BFS implementation to find path in maze
+    Breadth-First Search algorithm to find path in maze
     Fixed issues:
     1. Removed invalid 'string entry' declaration
-    2. Fixed syntax in coordinate unpacking
-    3. Fixed queue pop syntax
-    4. Corrected maze indexing
-    5. Added queue empty check
-    6. Fixed path finding logic
-    7. Changed wall check condition
+    2. Fixed visited array initialization (should be False initially)
+    3. Corrected maze indexing in target check
+    4. Fixed parent dictionary updates
     '''
     entry = input("Enter the entry point (x, y): ")
 
@@ -51,7 +49,7 @@ def bfs():
                     path.reverse()
                     return path
 
-                if maze[nx][ny] == 0:  # Changed from 1 to 0 as 1 represents walls
+                if maze[nx][ny] == 0:  
                     queue.append((nx, ny))
                     visited[nx][ny] = True
                     parent[(nx, ny)] = (x, y)
