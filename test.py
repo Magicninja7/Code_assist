@@ -15,7 +15,7 @@ directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
 def bfs():
     '''
-    Breadth-First Search algorithm to find path in maze
+    Breadth-First Search implementation to find path in maze
     Fixed issues:
     1. Removed invalid 'string entry' declaration
     2. Fixed visited array initialization (should be False initially)
