@@ -12,6 +12,7 @@ git clone https://github.com/Magicninja7/Code_assist.git
 
 ## Usage
 
+GUI
 ```python
 python copilot.py
 
@@ -22,6 +23,8 @@ python copilot.py
 
 #in the second, enter the filename, or OCR, to capture the snippet.
 ```
+
+Or CLI
 ```bash
 python copilot.py --issue "your issue" --file "the file" --ocr "y/n" --github "repo link" --path "file path"
 ```
