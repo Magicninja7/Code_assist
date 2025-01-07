@@ -206,7 +206,6 @@ def git_use_cli(repo_path, remote_url):
 
 
 
-time.sleep(5)
 
 def run_gui():
     app()
