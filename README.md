@@ -22,6 +22,9 @@ python copilot.py
 
 #in the second, enter the filename, or OCR, to capture the snippet.
 ```
+```bash
+python copilot.py --issue "your issue" --file "the file" --ocr "y/n" --github "repo link" --path "file path"
+```
 
 ## License
 
