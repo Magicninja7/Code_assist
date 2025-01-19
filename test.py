@@ -14,14 +14,7 @@ directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
 
 def bfs():
-    '''
-    Breadth-First Search algorithm to find path in maze
-    Fixed issues:
-    - Removed invalid 'string entry' declaration
-    - Fixed visited array initialization (should be False initially)
-    - Corrected maze indexing in target check
-    - Fixed parent dictionary updates
-    '''
+
     entry = input("Enter the entry point (x, y): ")
 
     x, y = map(int, entry.split(","))
